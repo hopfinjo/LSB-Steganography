@@ -14,3 +14,4 @@ write picture to memory
 
 QUESTIONS:
 Minimal numbers of bits must be 16 so that I can store 1 ascii char in pic?
+How to write to the binary string of the image? Which bits am I supposed to change?

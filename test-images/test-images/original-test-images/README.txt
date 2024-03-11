@@ -1,6 +1,8 @@
 These images should be used for testing the workflow for embedding text. To do this, choose an image, rename it to "original.bmp", place it in the
 working directory of your application, and run the text embedding workflow.
 
+
+
 Images:
 
 - 1 by 1.bmp
