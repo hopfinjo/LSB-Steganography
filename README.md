@@ -10,3 +10,7 @@ make it function to check if long enough to store text. Must be at least 16 bits
 Change the actual bits
 make a picture out of it again
 write picture to memory
+
+
+QUESTIONS:
+Minimal numbers of bits must be 16 so that I can store 1 ascii char in pic?
