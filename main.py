@@ -1,3 +1,8 @@
+# Hopfer Maximilian
+# Least Significant Bit Steganography program to embed and extract hidden messages from bitmap pictures.
+# The programs running time could be significantly shortened when implementing bitwise and|or operations to hide and embedd
+# strings in pictures. Due to time constraints this is not implemented yet.
+
 from PIL import Image
 import sys
 
@@ -29,8 +34,6 @@ class LSB_Stenograph:
 
             # this gets us array [R, G, B]1
             pixel_array = list(img.getdata())
-
-
                 
         # Convert pixel array to a list of bits
         bit_array = []
@@ -94,8 +97,6 @@ class LSB_Stenograph:
         # Converting String to binary
         #https://www.geeksforgeeks.org/python-convert-string-to-binary/
         hidden_message_binary = ''.join(format(ord(i), '08b') for i in hidden_message)
-
-
 
         
         if len(picture_bit_array) < len(hidden_message_binary) + 8:
