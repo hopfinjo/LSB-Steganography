@@ -1,5 +1,5 @@
 from PIL import Image
-
+import sys
 
 class LSB_Stenograph:
 
@@ -12,8 +12,8 @@ class LSB_Stenograph:
     
  
     def convert_str_to_binary(self, input_string):
-        # https://www.geeksforgeeks.org/python-convert-string-to-binary/
-               
+
+        # https://www.geeksforgeeks.org/python-convert-string-to-binary/       
         # using join() + ord() + format()
         # Converting String to binary
         inputStringInBinary = ''.join(format(ord(i), '08b') for i in input_string)
@@ -27,26 +27,19 @@ class LSB_Stenograph:
 
             img = img.convert("RGB")
 
-            # this gets us array [R, G, B]
+            # this gets us array [R, G, B]1
             pixel_array = list(img.getdata())
 
 
                 
-            # Convert pixel array to a list of bits
+        # Convert pixel array to a list of bits
         bit_array = []
         for pixel in pixel_array:
             
             for value in pixel:
                 bit_array.append(self.decimalToBinary(value)) 
 
-        # print(bit_array)
-        # print("Leng of bitarray  : ",len(bit_array))
-
         return bit_array, img.size
-
- 
-
-
 
     
     def extract_hidden_message(self,bit_array):
@@ -66,7 +59,7 @@ class LSB_Stenograph:
             if i+1 % 8 ==0:
                 zero_counter=0
             if zero_counter==8:
-                print("Null terminator found. End of encrypted message")
+                #print("Null terminator found. End of encrypted message")
                 messagebits.append(bit_array[i][-1])
 
                 null_terminator_found = True
@@ -95,24 +88,35 @@ class LSB_Stenograph:
             return (s[:l])
     
     def embedd_hidden_message_in_picture_pixel_array(self, hidden_message, picture_bit_array):
-        
+      
         
         # using join() + ord() + format()
         # Converting String to binary
         #https://www.geeksforgeeks.org/python-convert-string-to-binary/
         hidden_message_binary = ''.join(format(ord(i), '08b') for i in hidden_message)
 
+
+
         
-        if len(picture_bit_array) < 16:
-            print("The destination image does not have enough space to store any text. No output image will be generated")
-            return
-        
-        elif len(picture_bit_array) < len(hidden_message_binary):
+        if len(picture_bit_array) < len(hidden_message_binary) + 8:
             print("Not enough space to store the whole string, it will be trunkated")
 
             differenceLength = len(picture_bit_array) % 8
             
             trunkated_hidden_message_binary= hidden_message_binary[:len(picture_bit_array)-8 - differenceLength]
+
+            # change binary back to string and show user what is put into picture:
+            ascii_string = ""
+
+            # interpret every 8 bits
+            for i in range(0, len(trunkated_hidden_message_binary), 8):
+                byte = trunkated_hidden_message_binary[i:i+8]
+                int_of_byte = int(byte, 2)
+                ascii_character = chr(int_of_byte)
+                ascii_string += ascii_character
+
+
+            print("The trunkated string is:", ascii_string)
                 
             hidden_message_binary = trunkated_hidden_message_binary + '00000000'
 
@@ -120,12 +124,10 @@ class LSB_Stenograph:
             hidden_message_binary = hidden_message_binary + '00000000'
 
 
-        print("hidden messag binary  + " , len(hidden_message_binary))
-        print(" length picture bit array " , len(picture_bit_array))
+        # print("hidden messag binary  + " , len(hidden_message_binary))
+        # print(" length picture bit array " , len(picture_bit_array))
         
         for i in range((len(hidden_message_binary))):
-           # print("i: ",i, " hiddenbinary: " ,hidden_message_binary[i])
-
             picture_bit_array[i] = picture_bit_array[i][:-1] + hidden_message_binary[i]
 
         return picture_bit_array
@@ -152,8 +154,7 @@ class LSB_Stenograph:
             for char in userInputString:
                 if ord(char) >=32 and ord(char) <=127:
                     flag = False
-                
-            
+                            
             if flag:
                 print("\nYour input is either empty or not a valid ASCII string. Try again.")
 
@@ -179,26 +180,25 @@ class LSB_Stenograph:
         return new_image
 
     
-    
-    
     def main(self): 
-
-        #file_path = './test-images/test-images/steg-test-images/duq_logo.bmp'
-        
+       
         file_path = "original.bmp"
         lsb_instance = LSB_Stenograph()
-
 
         user_input_embed_or_extract = lsb_instance.get_user_input_embed_or_extract()
 
         if user_input_embed_or_extract == "1":
             # embed a string in a picture
-            string_to_hide = lsb_instance.get_string_to_hide()
+            
             pixel_bit_array, img_size = lsb_instance.open_pic_and_read_pixel_data(file_path)
+            if len(pixel_bit_array) < 16:
+                print("The destination image does not have enough space to store any text. No output image will be generated")
+                sys.exit()
+            string_to_hide = lsb_instance.get_string_to_hide()
             pixel_bit_array_with_embedded_message = lsb_instance.embedd_hidden_message_in_picture_pixel_array(hidden_message=string_to_hide, picture_bit_array=pixel_bit_array)
             new_image = lsb_instance.create_bitmap_image(pixel_bit_array_with_embedded_message,img_size)
             
-            new_image.save("original.bmp")
+            new_image.save("steg.bmp")
             
 
         else:
